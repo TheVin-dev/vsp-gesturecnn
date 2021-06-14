@@ -1,4 +1,6 @@
-docs/New Text Document.txt
+example/
+data/
+*.npy
 docs/
 Latex/
 src/.vscode

@@ -106,9 +106,6 @@ def getSamples(label):
 
 
 
-
-
-
 if __name__ == '__main__':
     allLabels = []
     cwd = os.getcwd() 

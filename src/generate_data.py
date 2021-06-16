@@ -5,7 +5,16 @@ import numpy as np
 import imutils
 from os import listdir
 
-def parsefiles(dataDir:str,allLabels:[]):
+def parsefullfiles(dataDir:str,labels:list):
+    """
+    List all  FULL files of one label 
+    load and append arrays to one big array, then save 
+    """
+
+
+    return None
+
+def parsefiles(dataDir:str,allLabels:list):
     """
     List all files of one label 
     load and append arrays to one big array, then save 
@@ -13,8 +22,10 @@ def parsefiles(dataDir:str,allLabels:[]):
     bigArr = None
     d = {} 
     files = [f for f in listdir(dataDir) if f.endswith('.npy') and "full" not in f]
+    print(files)
+    # TODO: Move this check to the loop below 
     if len(files) <2:
-
+        print("Not enough files in folder to parse ")
         return None
 
     labeled= [[f for f in listdir(dataDir) if f.endswith('.npy') and "full" not in f and label in f] for label in allLabels] 
@@ -32,7 +43,7 @@ def parsefiles(dataDir:str,allLabels:[]):
             else:
                 data = np.load(os.path.join(dataDir,f),allow_pickle=True)
                 bigArr = np.vstack((bigArr,data))
-                #os.remove(os.path.join(dataDir,f))
+                os.remove(os.path.join(dataDir,f))
                 
         N = bigArr.shape[0]
         delim = "-"
@@ -86,14 +97,8 @@ def getSamples(label):
             sys.exit(0)
             break
 
-        #cv2.imshow('webcam',image)
         downscaled = imutils.resize(image,width= 300)
         cv2.imshow('Downsized',downscaled)
-        if len(imgs) >= maxN:
-            print("Done with collecting")
-
-            break
-        
         imgs.append(downscaled)
         train_data.append([label,downscaled])
         if cv2.waitKey(2) == 27: 
@@ -108,11 +113,11 @@ def getSamples(label):
 
 if __name__ == '__main__':
     allLabels = []
-    cwd = os.getcwd() 
-    parentDir = os.path.dirname(cwd)
+    cwd = os.getcwd() #NOTE: this gives the parent directory from where the file is called 
+    parentDir = os.path.dirname(os.path.dirname(__file__)) #NOTE: this gives the parent directory of the file 
+    print(parentDir)
     dataDir = os.path.join(parentDir,"data")
     try:
-
         while (True):
             maxN,label = getInput()
             name = getName(dataDir,label,maxN)
@@ -122,6 +127,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass        
         
-    
-    print('exited while loop, parsing data folder')
+
     parsefiles(dataDir,allLabels)

@@ -7,7 +7,16 @@ from os import listdir
 import mediapipe as mp 
 
 
-def parsefiles(dataDir:str,allLabels:[]):
+def parsefullfiles(dataDir:str,labels:list):
+    """
+    List all  FULL files of one label 
+    load and append arrays to one big array, then save 
+    """
+
+
+    return None
+
+def parsefiles(dataDir:str,allLabels:list):
     """
     List all files of one label 
     load and append arrays to one big array, then save 
@@ -15,8 +24,10 @@ def parsefiles(dataDir:str,allLabels:[]):
     bigArr = None
     d = {} 
     files = [f for f in listdir(dataDir) if f.endswith('.npy') and "full" not in f]
+    print(files)
+    # TODO: Move this check to the loop below 
     if len(files) <2:
-
+        print("Not enough files in folder to parse ")
         return None
 
     labeled= [[f for f in listdir(dataDir) if f.endswith('.npy') and "full" not in f and label in f] for label in allLabels] 
@@ -116,8 +127,9 @@ def getSamples(label,maxN,show =False):
 
 if __name__ == '__main__':
     allLabels = []
-    cwd = os.getcwd() 
-    parentDir = os.path.dirname(cwd)
+    cwd = os.getcwd() #NOTE: this gives the parent directory from where the file is called 
+    parentDir = os.path.dirname(os.path.dirname(__file__)) #NOTE: this gives the parent directory of the file 
+    print(parentDir)
     dataDir = os.path.join(parentDir,"data")
     data =  getSamples('test',10000,True)
     print(*data)

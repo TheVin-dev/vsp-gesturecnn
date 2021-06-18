@@ -4,6 +4,8 @@ import os
 import numpy as np 
 import imutils
 from os import listdir
+import mediapipe as mp 
+
 
 def parsefiles(dataDir:str,allLabels:[]):
     """
@@ -20,19 +22,18 @@ def parsefiles(dataDir:str,allLabels:[]):
     labeled= [[f for f in listdir(dataDir) if f.endswith('.npy') and "full" not in f and label in f] for label in allLabels] 
 
 
-
     d = dict(zip(allLabels,labeled))
     
     for label, files in d.items(): 
         for f in files:
             if bigArr is None: 
                 bigArr = np.load(os.path.join(dataDir,f),allow_pickle=True)
-                #os.remove(os.path.join(dataDir,f))
+                os.remove(os.path.join(dataDir,f))
         
             else:
                 data = np.load(os.path.join(dataDir,f),allow_pickle=True)
                 bigArr = np.vstack((bigArr,data))
-                #os.remove(os.path.join(dataDir,f))
+                os.remove(os.path.join(dataDir,f))
                 
         N = bigArr.shape[0]
         delim = "-"
@@ -73,33 +74,40 @@ def getInput():
     
     return maxN,label
 
-def getSamples(label):
+def getSamples(label,maxN,show =False):
     cap = cv2.VideoCapture(0)
-    imgs = []
-    train_data = []# [label,imaege]
+    mp_drawing = mp.solutions.drawing_utils
+    mp_holistic = mp.solutions.holistic
+    train_data = []# [label,rawImage,poseImage,mpresults]
+    i = 0 
+    with mp_holistic.Holistic(min_detection_confidence=0.5,min_tracking_confidence=0.5) as holistic:
 
-    while (cap.isOpened) and len(imgs) < maxN: 
-        succes,image = cap.read() 
-        image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-        if (not succes):
-            print("Couldnt read frame! \n Exiting...")
-            sys.exit(0)
-            break
-
-        #cv2.imshow('webcam',image)
-        downscaled = imutils.resize(image,width= 300)
-        cv2.imshow('Downsized',downscaled)
-        if len(imgs) >= maxN:
-            print("Done with collecting")
-
-            break
-        
-        imgs.append(downscaled)
-        train_data.append([label,downscaled])
-        if cv2.waitKey(2) == 27: 
-            break
-
+        while (cap.isOpened()) and i < maxN:
+            succes,image = cap.read()
+            if not succes:
+                print("Couldnt load webcam")
+                break 
+            image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+            image.flags.writeable = False
+            results = holistic.process(image)
+            image.flags.writeable = True 
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
             
+            train_data.append([label,image,results])
+            if show:
+                mp_drawing.draw_landmarks(
+                        image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+                mp_drawing.draw_landmarks(
+                        image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+                mp_drawing.draw_landmarks(
+                        image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
+                cv2.imshow('MediaPipe Holistic', image)
+                if cv2.waitKey(1) & 0xFF == 27:
+                    
+                    break
+            i +=1 
+
+    cap.release()           
     cv2.destroyAllWindows()
     return np.array(train_data,dtype=object)
 
@@ -111,17 +119,20 @@ if __name__ == '__main__':
     cwd = os.getcwd() 
     parentDir = os.path.dirname(cwd)
     dataDir = os.path.join(parentDir,"data")
-    try:
+    data =  getSamples('test',10000,True)
+    print(*data)
+    # try:
 
-        while (True):
-            maxN,label = getInput()
-            name = getName(dataDir,label,maxN)
-            data = getSamples(label)
-            np.save(os.path.join(dataDir,name + ".npy"),data)
-            allLabels.append(label)
-    except KeyboardInterrupt:
-        pass        
+    #     while (True):
+    #         maxN,label = getInput()
+    #         name = getName(dataDir,label,maxN)
+    #         data = getSamples(label,maxN)
+            
+    #         np.save(os.path.join(dataDir,name + ".npy"),data)
+    #         allLabels.append(label)
+    # except KeyboardInterrupt:
+    #     pass        
         
     
     print('exited while loop, parsing data folder')
-    parsefiles(dataDir,allLabels)
+    #parsefiles(dataDir,allLabels)

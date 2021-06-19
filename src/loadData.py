@@ -4,6 +4,8 @@ import numpy as np
 import sys
 import cv2 
 import time 
+
+
 def loadData(labels,N=100):
 
     cwd = os.getcwd() 
@@ -39,6 +41,7 @@ def loadData(labels,N=100):
     return data 
 
 def CheckImages(data):
+
     """
     Helper function to look at data 
     """
@@ -62,6 +65,8 @@ def CheckImages(data):
         i+=1
 
     return None
+
+
 if __name__ == "__main__":
     
     rawdata = loadData('stop',200)

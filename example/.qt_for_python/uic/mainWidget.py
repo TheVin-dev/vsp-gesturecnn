@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'm:\Dropbox\TN\Minor\Vision\Assignment 3\example\mainwindow.ui'
+# Form implementation generated from reading ui file 'm:\Dropbox\TN\Minor\Vision\Assignment 3\example\mainWidget.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -11,23 +11,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(935, 868)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
-        MainWindow.setSizePolicy(sizePolicy)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
-        self.centralwidget.setSizePolicy(sizePolicy)
-        self.centralwidget.setObjectName("centralwidget")
-        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.centralwidget)
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("Form")
+        Form.resize(872, 874)
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(Form)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout()
         self.verticalLayout_4.setObjectName("verticalLayout_4")
@@ -37,7 +25,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3 = QtWidgets.QVBoxLayout()
         self.verticalLayout_3.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.generateData = QtWidgets.QPushButton(self.centralwidget)
+        self.generateData = QtWidgets.QPushButton(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -45,11 +33,11 @@ class Ui_MainWindow(object):
         self.generateData.setSizePolicy(sizePolicy)
         self.generateData.setObjectName("generateData")
         self.verticalLayout_3.addWidget(self.generateData)
-        self.previewGenerated = QtWidgets.QPushButton(self.centralwidget)
+        self.previewGenerated = QtWidgets.QPushButton(Form)
         self.previewGenerated.setObjectName("previewGenerated")
         self.verticalLayout_3.addWidget(self.previewGenerated)
         self.horizontalLayout_2.addLayout(self.verticalLayout_3)
-        self.dataLabel = QtWidgets.QPlainTextEdit(self.centralwidget)
+        self.dataLabel = QtWidgets.QPlainTextEdit(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -58,7 +46,7 @@ class Ui_MainWindow(object):
         self.dataLabel.setMinimumSize(QtCore.QSize(1, 28))
         self.dataLabel.setObjectName("dataLabel")
         self.horizontalLayout_2.addWidget(self.dataLabel)
-        self.dataSamples = QtWidgets.QPlainTextEdit(self.centralwidget)
+        self.dataSamples = QtWidgets.QPlainTextEdit(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -72,10 +60,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
-        self.TrainModel = QtWidgets.QPushButton(self.centralwidget)
+        self.TrainModel = QtWidgets.QPushButton(Form)
         self.TrainModel.setObjectName("TrainModel")
         self.verticalLayout.addWidget(self.TrainModel)
-        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton = QtWidgets.QPushButton(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -88,7 +76,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addItem(spacerItem)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.generateButton = QtWidgets.QPushButton(self.centralwidget)
+        self.generateButton = QtWidgets.QPushButton(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -96,7 +84,7 @@ class Ui_MainWindow(object):
         self.generateButton.setSizePolicy(sizePolicy)
         self.generateButton.setObjectName("generateButton")
         self.verticalLayout_2.addWidget(self.generateButton)
-        self.saveData = QtWidgets.QPushButton(self.centralwidget)
+        self.saveData = QtWidgets.QPushButton(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -108,7 +96,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addLayout(self.horizontalLayout_3)
         spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.verticalLayout_4.addItem(spacerItem1)
-        self.image_frame = QtWidgets.QLabel(self.centralwidget)
+        self.image_frame = QtWidgets.QLabel(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -122,7 +110,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addItem(spacerItem2)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.startCam = QtWidgets.QPushButton(self.centralwidget)
+        self.startCam = QtWidgets.QPushButton(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -130,7 +118,7 @@ class Ui_MainWindow(object):
         self.startCam.setSizePolicy(sizePolicy)
         self.startCam.setObjectName("startCam")
         self.horizontalLayout.addWidget(self.startCam)
-        self.stopCam = QtWidgets.QPushButton(self.centralwidget)
+        self.stopCam = QtWidgets.QPushButton(Form)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -142,24 +130,23 @@ class Ui_MainWindow(object):
         spacerItem3 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.verticalLayout_4.addItem(spacerItem3)
         self.horizontalLayout_4.addLayout(self.verticalLayout_4)
-        MainWindow.setCentralWidget(self.centralwidget)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(Form)
+        QtCore.QMetaObject.connectSlotsByName(Form)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Computer Vision Webcam Application (CVWA)"))
-        self.generateData.setText(_translate("MainWindow", "Generate train data"))
-        self.previewGenerated.setText(_translate("MainWindow", "Preview"))
-        self.dataLabel.setToolTip(_translate("MainWindow", "<html><head/><body><p>Enter Label for training data</p><p><br/></p></body></html>"))
-        self.dataLabel.setPlainText(_translate("MainWindow", "Enter label"))
-        self.dataSamples.setToolTip(_translate("MainWindow", "<html><head/><body><p>Enter number of samples of training data</p><p><br/></p></body></html>"))
-        self.dataSamples.setPlainText(_translate("MainWindow", "Enter number of samples of training data\n"
+        Form.setWindowTitle(_translate("Form", "Form"))
+        self.generateData.setText(_translate("Form", "Generate train data"))
+        self.previewGenerated.setText(_translate("Form", "Preview"))
+        self.dataLabel.setToolTip(_translate("Form", "<html><head/><body><p>Enter Label for training data</p><p><br/></p></body></html>"))
+        self.dataLabel.setPlainText(_translate("Form", "Enter label"))
+        self.dataSamples.setToolTip(_translate("Form", "<html><head/><body><p>Enter number of samples of training data</p><p><br/></p></body></html>"))
+        self.dataSamples.setPlainText(_translate("Form", "Enter number of samples of training data\n"
 ""))
-        self.TrainModel.setText(_translate("MainWindow", "Train model"))
-        self.pushButton.setText(_translate("MainWindow", "Predict"))
-        self.generateButton.setText(_translate("MainWindow", "Save model"))
-        self.saveData.setText(_translate("MainWindow", "Save data"))
-        self.startCam.setText(_translate("MainWindow", "Start video"))
-        self.stopCam.setText(_translate("MainWindow", "Stop video"))
+        self.TrainModel.setText(_translate("Form", "Train model"))
+        self.pushButton.setText(_translate("Form", "Predict"))
+        self.generateButton.setText(_translate("Form", "Save model"))
+        self.saveData.setText(_translate("Form", "Save data"))
+        self.startCam.setText(_translate("Form", "Start video"))
+        self.stopCam.setText(_translate("Form", "Stop video"))

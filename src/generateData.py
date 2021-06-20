@@ -6,7 +6,6 @@ import imutils
 from os import listdir
 import mediapipe as mp 
 
-
 def parsefiles(dataDir:str,allLabels:list):
     """
     List all files of one label 
@@ -47,13 +46,12 @@ def parsefiles(dataDir:str,allLabels:list):
 
 def getName(dataDir:str,label:str,N:int):
     delim = "-"
-    highest = 0
-    LabelFiles = [f for f in listdir(dataDir) if label.lower() in f]
+    highest = 1
+    LabelFiles = [f for f in listdir(dataDir) if label.lower() in f and f.endswith('.npy')]
     
     for f in LabelFiles:
-        if f.endswith(".npy"):
-
             index = f.split(delim,2)[-1]
+            
             index = int(index.split('.',1)[0])
             if index == highest:
                 highest +=1 
@@ -81,6 +79,7 @@ def getSamples(label,maxN,show =False):
     mp_drawing = mp.solutions.drawing_utils
     mp_holistic = mp.solutions.holistic
     train_data = []# [label,rawImage,poseImage,mpresults]
+    POSE_LANDMARKS_INDEX = [x for x in range(12,23)]
     i = 0 
     with mp_holistic.Holistic(min_detection_confidence=0.5,min_tracking_confidence=0.5) as holistic:
 
@@ -95,7 +94,42 @@ def getSamples(label,maxN,show =False):
             image.flags.writeable = True 
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
             
-            train_data.append([label,image,results])
+            Posekeypoints = []
+            RightHkeypoints = [] 
+            LeftHkeypoints = []
+            if results.pose_landmarks is not None:
+                for idx,data_point in enumerate(results.pose_landmarks.landmark):
+                    if idx in POSE_LANDMARKS_INDEX:
+                        
+                        Posekeypoints.append({
+                                    'X': data_point.x,
+                                    'Y': data_point.y,
+                                    'Z': data_point.z,
+                                    'Visibility': data_point.visibility,
+                                    }) 
+
+            
+            
+            if results.right_hand_landmarks is not None:
+                for idx,data_point in enumerate(results.right_hand_landmarks.landmark):       
+                    RightHkeypoints.append({
+                                'X': data_point.x,
+                                'Y': data_point.y,
+                                'Z': data_point.z,
+                                'Visibility': data_point.visibility,
+                                }) 
+            if  results.left_hand_landmarks is not None:
+                for idx,data_point in enumerate(results.left_hand_landmarks.landmark):       
+                    LeftHkeypoints.append({
+                                'X': data_point.x,
+                                'Y': data_point.y,
+                                'Z': data_point.z,
+                                'Visibility': data_point.visibility,
+                                })         
+
+            
+            train_data.append([label,Posekeypoints,LeftHkeypoints,RightHkeypoints])
+            
             if show:
                 mp_drawing.draw_landmarks(
                         image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
@@ -111,6 +145,9 @@ def getSamples(label,maxN,show =False):
 
     cap.release()           
     cv2.destroyAllWindows()
+
+
+    
     return np.array(train_data,dtype=object)
 
 
@@ -122,20 +159,21 @@ if __name__ == '__main__':
     parentDir = os.path.dirname(os.path.dirname(__file__)) #NOTE: this gives the parent directory of the file 
     
     dataDir = os.path.join(parentDir,"data")
-    data =  getSamples('test',10000,False)
-    
+    data =  getSamples('test',100,True)
+    name = getName(dataDir,'test',100)
+
+    np.save(os.path.join(dataDir,name + ".npy"),data)
     # try:
 
     #     while (True):
     #         maxN,label = getInput()
-    #         name = getName(dataDir,label,maxN)
+    #         
     #         data = getSamples(label,maxN)
             
-    #         np.save(os.path.join(dataDir,name + ".npy"),data)
+    #        
     #         allLabels.append(label)
     # except KeyboardInterrupt:
     #     pass        
         
     
     print('exited while loop, parsing data folder')
-    #parsefiles(dataDir,allLabels)

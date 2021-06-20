@@ -1,0 +1,12 @@
+#Neural network gesture classification:
+
+## Inputs
+We want to use the Pose, the left hand and the right hand. 
+For the Pose, we will use 11 t/m 22 landmarks.
+For the hands we use all landmarks. (21 + 21) = 42 landmarks 
+
+every landmark has 4 variables (x,y,z,visibility) 
+
+So in total, there will be 4 * (42 + 11) (float) inputs to the NN. 
+There are 4 outputs, the chosen gestures. 
+

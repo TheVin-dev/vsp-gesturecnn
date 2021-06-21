@@ -19,12 +19,13 @@ class MainWindow(QMainWindow):
         self.holistic = self.mp_holistic.Holistic(min_detection_confidence=0.5,min_tracking_confidence=0.5) # https://google.github.io/mediapipe/solutions/holistic.html 
         self.trainingData = []
         self.label = None
+        self.allLabels = []
         # callbacks
         self.stopCam.clicked.connect(self.stopTimer)
         self.startCam.clicked.connect(self.startTimer)
         self.TrainModel.clicked.connect(self.OnTrain)
         self.generateData.clicked.connect(self.OnGenerateData)
-        self.previewGenerated.clicked.connect(self.OnPreview)
+        self.cleanFolder.clicked.connect(self.OnCleanFiles)
         self.saveData.clicked.connect(self.onSave)
              
         self._timer.timeout.connect(self.on_timeout)
@@ -36,7 +37,7 @@ class MainWindow(QMainWindow):
         
 
     def on_timeout(self):
-
+        POSE_LANDMARKS_INDEX = [x for x in range(12,23)]
         if self.label is None:
 
             msg = QMessageBox()
@@ -44,8 +45,10 @@ class MainWindow(QMainWindow):
             self._timer.stop()
             msg.exec()    
             return None
-
+       
         ok, image = self.camera.read() 
+        
+
         if not ok:
             return None
         
@@ -57,7 +60,53 @@ class MainWindow(QMainWindow):
             image.flags.writeable = True 
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
             
-            self.trainingData.append([self.label,image,results.pose_landmarks,results.left_hand_landmarks,results.right_hand_landmarks])
+            Posekeypoints = []
+            RightHkeypoints = [] 
+            LeftHkeypoints = []
+            if results.pose_landmarks is not None:
+                for idx,data_point in enumerate(results.pose_landmarks.landmark):
+                    if idx in POSE_LANDMARKS_INDEX:
+                        
+                        Posekeypoints.append({
+                                    'X': data_point.x,
+                                    'Y': data_point.y,
+                                    'Z': data_point.z,
+                                    'Visibility': data_point.visibility,
+                                    }) 
+
+            
+            
+            if results.right_hand_landmarks is not None:
+                for idx,data_point in enumerate(results.right_hand_landmarks.landmark):       
+                    RightHkeypoints.append({
+                                'X': data_point.x,
+                                'Y': data_point.y,
+                                'Z': data_point.z,
+                                'Visibility': data_point.visibility,
+                                }) 
+            if  results.left_hand_landmarks is not None:
+                for idx,data_point in enumerate(results.left_hand_landmarks.landmark):       
+                    LeftHkeypoints.append({
+                                'X': data_point.x,
+                                'Y': data_point.y,
+                                'Z': data_point.z,
+                                'Visibility': data_point.visibility,
+                                })         
+
+            
+            self.trainingData.append([label,Posekeypoints,LeftHkeypoints,RightHkeypoints])
+
+
+
+
+
+
+
+
+
+
+
+
             self.mp_drawing.draw_landmarks(
                         image, results.left_hand_landmarks, self.mp_holistic.HAND_CONNECTIONS)
             self.mp_drawing.draw_landmarks(
@@ -77,6 +126,7 @@ class MainWindow(QMainWindow):
             self.drawImage(image)        
 
         return 
+    
     def drawImage(self,image):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)    
         h, w, ch = image.shape
@@ -119,25 +169,55 @@ class MainWindow(QMainWindow):
             
        
         np.save(os.path.join(self.dataDir,name + ".npy"),data)
-        print(f"Saved {data.shape[0]} samples: ")
+        print(f"Saved {data.shape[0]} samples ")
         return None
 
     def OnGenerateData(self):
         self.TRAINING=True
         label, ok  = QInputDialog.getText(self,"Labeler","Label for the collected data")     
+
         if ok:
             self.label = label
+            self.allLabels.append(label)
         
         return None
-    def OnPreview(self): # REMOVE THIS FUNCTION, NOT IMPORTANT
+
+
+    def OnCleanFiles(self):
         """
-        Show samples of generated data 
+        List all files of one label 
+        load and append arrays to one big array, then save 
         """
-        pass
-        #np.random.choice(self.trainingData)
-        # TODO: pop up 3 random frames with pose 
-        # TODO: Give option to look at all data 
+        bigArr = None
+        d = {} 
+        dataDir = self.dataDir    
+
+        labeled= [[f for f in listdir(dataDir) if f.endswith('.npy') and "full" not in f and label in f] for label in self.allLabels] 
+        print(len(labeled))
+
+        if len(labeled) < 4:
+            return None
+        d = dict(zip(self.allLabels,labeled))
         
+        for label, files in d.items(): 
+            for f in files:
+                if bigArr is None: 
+                    bigArr = np.load(os.path.join(dataDir,f),allow_pickle=True)
+                    #os.remove(os.path.join(dataDir,f))
+            
+                else:
+                    data = np.load(os.path.join(dataDir,f),allow_pickle=True)
+                    bigArr = np.vstack((bigArr,data))
+                    #os.remove(os.path.join(dataDir,f))
+                    
+            N = bigArr.shape[0]
+            delim = "-"
+            name = delim.join([label.lower(),"full",str(N)])    
+            np.save(os.path.join(dataDir,name),bigArr)
+            bigArr = None
+
+
+        return None
 
     def onReset(self):
         # TODO: Reset uit 
@@ -159,7 +239,7 @@ class MainWindow(QMainWindow):
 
                 index = f.split(delim,2)[-1]
                 index = int(index.split('.',1)[0])
-                if index == highest:
+                if index == highest: 
                     highest +=1 
 
         name = delim.join([label.lower(),str(N),str(highest)])

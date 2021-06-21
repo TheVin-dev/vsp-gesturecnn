@@ -7,6 +7,6 @@ For the hands we use all landmarks. (21 + 21) = 42 landmarks
 
 every landmark has 4 variables (x,y,z,visibility) 
 
-So in total, there will be 4 * (42 + 11) (float) inputs to the NN. 
+So in total, there will be 4 * (42 + 11) (float) (212)  inputs to the NN. 
 There are 4 outputs, the chosen gestures. 
 

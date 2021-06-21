@@ -6,19 +6,16 @@ import imutils
 from os import listdir
 import mediapipe as mp 
 
-def parsefiles(dataDir:str,allLabels:list):
+def CleanFolder(dataDir:str,allLabels:list):
     """
     List all files of one label 
     load and append arrays to one big array, then save 
+    AND
+    List all 'full' files and make one big array
     """
     bigArr = None
     d = {} 
-    files = [f for f in listdir(dataDir) if f.endswith('.npy') and "full" not in f]
-    print(files)
-    # TODO: Move this check to the loop below 
-    if len(files) <2:
-        print("Not enough files in folder to parse ")
-        return None
+    
 
     labeled= [[f for f in listdir(dataDir) if f.endswith('.npy') and "full" not in f and label in f] for label in allLabels] 
 
@@ -94,41 +91,56 @@ def getSamples(label,maxN,show =False):
             image.flags.writeable = True 
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
             
-            Posekeypoints = []
-            RightHkeypoints = [] 
-            LeftHkeypoints = []
+
+            alllandmarks = [] 
             if results.pose_landmarks is not None:
                 for idx,data_point in enumerate(results.pose_landmarks.landmark):
-                    if idx in POSE_LANDMARKS_INDEX:
-                        
-                        Posekeypoints.append({
-                                    'X': data_point.x,
-                                    'Y': data_point.y,
-                                    'Z': data_point.z,
-                                    'Visibility': data_point.visibility,
-                                    }) 
-
+                    if idx in POSE_LANDMARKS_INDEX:    
+                        alllandmarks.extend([
+                            data_point.x,
+                            data_point.y,
+                            data_point.z,
+                            data_point.visibility])
+            else:
+                for idxt in range(0,23):
+                    alllandmarks.extend([
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0])
             
             
             if results.right_hand_landmarks is not None:
                 for idx,data_point in enumerate(results.right_hand_landmarks.landmark):       
-                    RightHkeypoints.append({
-                                'X': data_point.x,
-                                'Y': data_point.y,
-                                'Z': data_point.z,
-                                'Visibility': data_point.visibility,
-                                }) 
+                    alllandmarks.extend([
+                        data_point.x,
+                        data_point.y,
+                        data_point.z,
+                        data_point.visibility])
+            else:           
+                for idx in range(0,21):
+                    alllandmarks.extend([
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0])  
+
             if  results.left_hand_landmarks is not None:
                 for idx,data_point in enumerate(results.left_hand_landmarks.landmark):       
-                    LeftHkeypoints.append({
-                                'X': data_point.x,
-                                'Y': data_point.y,
-                                'Z': data_point.z,
-                                'Visibility': data_point.visibility,
-                                })         
-
+                    alllandmarks.extend([
+                        data_point.x,
+                        data_point.y,
+                        data_point.z,
+                        data_point.visibility])   
+            else:           
+                for idx in range(0,21):
+                    alllandmarks.extend([
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0])  
             
-            train_data.append([label,Posekeypoints,LeftHkeypoints,RightHkeypoints])
+            train_data.append([label,np.array(alllandmarks,dtype=np.float32)])
             
             if show:
                 mp_drawing.draw_landmarks(
@@ -148,7 +160,7 @@ def getSamples(label,maxN,show =False):
 
 
     
-    return np.array(train_data,dtype=object)
+    return train_data
 
 
 
@@ -160,20 +172,10 @@ if __name__ == '__main__':
     
     dataDir = os.path.join(parentDir,"data")
     data =  getSamples('test',100,True)
+    
     name = getName(dataDir,'test',100)
 
     np.save(os.path.join(dataDir,name + ".npy"),data)
-    # try:
 
-    #     while (True):
-    #         maxN,label = getInput()
-    #         
-    #         data = getSamples(label,maxN)
-            
-    #        
-    #         allLabels.append(label)
-    # except KeyboardInterrupt:
-    #     pass        
-        
     
-    print('exited while loop, parsing data folder')
+    

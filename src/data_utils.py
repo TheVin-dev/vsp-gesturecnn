@@ -1,12 +1,46 @@
 import cv2 
-import sys 
 import os 
 import numpy as np 
-import imutils
 from os import listdir
 import mediapipe as mp 
+import torch
+import torch.nn.functional as F 
+parentDir = os.path.dirname(os.path.dirname(__file__)) #NOTE: this gives the parent directory of the file 
+dataDir = os.path.join(parentDir,"data")
+modelDir = os.path.join(parentDir,'model')
 
-def CleanFolder(dataDir:str,allLabels:list):
+class MyDataLoader(torch.utils.data.Dataset):
+    def __init__(self, src_file, num_rows=None):
+        self.dataDir = os.path.join(os.path.dirname(os.path.dirname(__file__)),'data')
+        tmp_data = np.load(os.path.join(self.dataDir,src_file),allow_pickle=True)
+        x = [inputs for (_,inputs) in tmp_data if len(inputs) == 212]
+        labels = [label for (label,inputs) in tmp_data if len(inputs) == 212]
+        unique = list(set(labels))
+       
+        self.indices = [i for i in range(len(unique))]
+        self.labelDict = dict(zip(unique,self.indices))
+        
+        values_of_key = torch.tensor([self.labelDict[label] for label in labels])
+        
+        self.X = torch.tensor(x,dtype=torch.float)
+        self.Y = torch.as_tensor(values_of_key)
+
+    def __getitem__(self, index):
+        """
+        Generates one sample of data
+        """
+        X = self.X[index]
+        Y = self.Y[index]
+
+        return X,Y
+
+
+    def __len__(self):
+        return len(self.X)
+
+
+
+def CleanFolder():
     """
     List all files of one label 
     load and append arrays to one big array, then save 
@@ -17,27 +51,25 @@ def CleanFolder(dataDir:str,allLabels:list):
     d = {} 
     
 
-    labeled= [[f for f in listdir(dataDir) if f.endswith('.npy') and "full" not in f and label in f] for label in allLabels] 
+    labeled= [f for f in listdir(dataDir) if f.endswith('.npy') and "full" not in f]
 
 
-    d = dict(zip(allLabels,labeled))
     
-    for label, files in d.items(): 
-        for f in files:
-            if bigArr is None: 
-                bigArr = np.load(os.path.join(dataDir,f),allow_pickle=True)
-                os.remove(os.path.join(dataDir,f))
-        
-            else:
-                data = np.load(os.path.join(dataDir,f),allow_pickle=True)
-                bigArr = np.vstack((bigArr,data))
-                os.remove(os.path.join(dataDir,f))
-                
-        N = bigArr.shape[0]
-        delim = "-"
-        name = delim.join([label.lower(),"full",str(N)])    
-        np.save(os.path.join(dataDir,name),bigArr)
-        bigArr = None
+    for f in labeled: 
+        if bigArr is None: 
+            bigArr = np.load(os.path.join(dataDir,f),allow_pickle=True)
+            #os.remove(os.path.join(dataDir,f))
+    
+        else:
+            data = np.load(os.path.join(dataDir,f),allow_pickle=True)
+            bigArr = np.vstack((bigArr,data))
+            #os.remove(os.path.join(dataDir,f))
+            
+    N = bigArr.shape[0]
+    delim = "-"
+    name = delim.join(["full",str(N)])    
+    np.save(os.path.join(dataDir,name),bigArr)
+    bigArr = None
 
     return None
 
@@ -147,6 +179,8 @@ def getSamples(label,maxN,show =False):
                         image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
                 mp_drawing.draw_landmarks(
                         image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+
+               
                 mp_drawing.draw_landmarks(
                         image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
                 cv2.imshow('MediaPipe Holistic', image)
@@ -166,16 +200,13 @@ def getSamples(label,maxN,show =False):
 
 
 if __name__ == '__main__':
-    allLabels = []
-    cwd = os.getcwd() #NOTE: this gives the parent directory from where the file is called 
     parentDir = os.path.dirname(os.path.dirname(__file__)) #NOTE: this gives the parent directory of the file 
-    
     dataDir = os.path.join(parentDir,"data")
-    data =  getSamples('test',100,True)
-    
-    name = getName(dataDir,'test',100)
-
-    np.save(os.path.join(dataDir,name + ".npy"),data)
+   
+    # maxN,label = getInput()
+    # name = getName(dataDir,label,maxN)
+    # data =  getSamples(label,maxN,True)
+    # np.save(os.path.join(dataDir,name + ".npy"),data)
 
     
     
